@@ -19,7 +19,7 @@ class Character(object):
     def get_year(self):
         return str(" in year " + str(self.birth_year + self.age))
 
-    def create_action_log_string(self, action):
+    def create_entry(self, action):
         return self.name + " " + action + self.get_year() + "."
 
     def first_name_gen(self):
@@ -37,11 +37,13 @@ class Character(object):
     def spawn(self):
         child = Character(self.space)
         child.birth_year = self.birth_year + self.age
-        self.action_log.append(self.create_action_log_string("spawned child"))
+        child.relations[self] = 1
+        self.relations[child] = 1
+        self.action_log.append(self.create_entry("spawned child"))
         Character.born.add(child)
 
     def die(self):
-        self.action_log.append("died" + self.get_year())
+        self.action_log.append(self.create_entry("died"))
         Character.dead.add(self)
 
     def befriend(self, other):
