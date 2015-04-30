@@ -1,6 +1,6 @@
 from character import Character
 
-INIT_POP_SIZE = 10
+INIT_POP_SIZE = 5
 
 def main():
     space = set()
@@ -9,12 +9,15 @@ def main():
     time_loop(space)
 
 def time_loop(space):
+    year = 0
     while space:
         for character in space:
-            character.make_decision()
             character.age += 1
+            character.make_decision()
         add_born()
         remove_dead()
+        year += 1
+        print("year: " + str(year))
         print("population size: " + str(len(space)))
 
 def add_born():
