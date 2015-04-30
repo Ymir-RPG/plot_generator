@@ -9,34 +9,41 @@ class Character(object):
 
     def __init__(self, space):
         self.gender = choice(["female", "male"])
-        self.name = self.first_name_gen()
+        self.first_name = self.first_first_name_gen()
         self.space = space
         self.birth_year = 0
         self.age = 0
         self.relations = dict() #maps characters to ints
         self.action_log = list() #says what someone did, when, where, how, why
 
+    def __str__(self):
+        return self.first_name
+
     def get_year(self):
         return str(" in year " + str(self.birth_year + self.age))
 
     def create_entry(self, action):
-        return self.name + " " + action + self.get_year() + "."
+        return self.first_name + " " + action + self.get_year() + "."
 
-    def first_name_gen(self):
+    def first_first_name_gen(self):
         if self.gender == "female":
             return choice(female_first_list)
         return choice(male_first_list)
 
     def make_decision(self):
-        roll = randint(0, 2) 
+        roll = randint(0, 3)
         if roll == 0:
             self.spawn()
         elif roll == 1:
             self.die()
-        else:
+        elif roll == 2:
             friend = choice(list(self.space)) #O(n), find way to fix
             if friend != self: #can't befriend yourself
                 self.befriend(friend)
+        else:
+            enemy = choice(list(self.space)) #O(n), find way to fix
+            if enemy != self: #can't harm yourself
+                self.harm(enemy)
 
     def spawn(self):
         child = Character(self.space)
@@ -59,4 +66,15 @@ class Character(object):
             other.relations[self] += 1
         else:
             other.relations[self] = 1
-        self.action_log.append(self.create_entry("befriended " + other.name))
+        self.action_log.append(self.create_entry("befriended " + other.first_name))
+
+    def harm(self, other):
+        if other in self.relations:
+            self.relations[other] -= 1
+        else:
+            self.relations[other] = -1
+        if self in other.relations:
+            other.relations[self] -= 1
+        else:
+            other.relations[self] = -1 
+        self.action_log.append(self.create_entry("harmed " + other.first_name))
