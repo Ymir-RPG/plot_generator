@@ -32,8 +32,15 @@ class Character(object):
             return choice(female_first_list)
         return choice(male_first_list)
 
+    def get_greatest_enemy(self):
+        greatest_enemy = (None, 0) 
+        for key in self.relations:
+            if self.relations[key] < greatest_enemy[1]:
+                greatest_enemy = (key, self.relations[key])
+        return greatest_enemy[0]
+
     def make_decision(self):
-        roll = randint(0, 2)
+        roll = randint(0, 3)
         if roll == 0:
             self.spawn()
         elif roll == 1:
@@ -42,6 +49,8 @@ class Character(object):
             relation = choice(list(self.space)) #O(n), find way to fix
             if relation != self:
                 self.effect_other(relation, choice([-1, 1]))
+        elif roll == 3 and self.get_greatest_enemy() in self.space:
+            self.kill(self.get_greatest_enemy())
 
     def spawn(self):
         child = Character(self.space)
@@ -52,19 +61,26 @@ class Character(object):
         self.action_log.append(self.create_entry("spawned " + str(child)))
         Character.born.add(child)
 
+    def kill(self, other):
+        print("#############")
+        other.action_log.append(other.create_entry("was killed by " + str(self)))
+        self.action_log.append(self.create_entry("killed " + str(other)))
+        Character.dead.add(other)
+
     def die(self):
         self.action_log.append(self.create_entry("died"))
         Character.dead.add(self)
 
     def effect_other(self, other, effect):
+        assert self != other
         if other in self.relations:
             self.relations[other] += effect
         else:
-            self.relations[other] = effect 
+            self.relations[other] = effect
         if self in other.relations:
-            other.relations[self] += effect 
+            other.relations[self] += effect
         else:
-            other.relations[self] = effect 
+            other.relations[self] = effect
         if effect < 0:
             self.action_log.append(self.create_entry("harmed " + str(other)))
         elif effect > 0:
