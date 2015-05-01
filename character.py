@@ -1,6 +1,7 @@
 from random import randint, choice
 from female_first import *
 from male_first import *
+from last import last_name_list
 
 class Character(object):
   
@@ -10,6 +11,7 @@ class Character(object):
     def __init__(self, space):
         self.gender = choice(["female", "male"])
         self.first_name = self.first_first_name_gen()
+        self.last_name = choice(last_name_list) 
         self.space = space
         self.birth_year = 0
         self.age = 0
@@ -17,13 +19,13 @@ class Character(object):
         self.action_log = list() #says what someone did, when, where, how, why
 
     def __str__(self):
-        return self.first_name
+        return self.first_name + " " + self.last_name
 
     def get_year(self):
         return str(" in year " + str(self.birth_year + self.age))
 
     def create_entry(self, action):
-        return self.first_name + " " + action + self.get_year() + "."
+        return str(self) + " " + action + self.get_year() + "."
 
     def first_first_name_gen(self):
         if self.gender == "female":
@@ -44,9 +46,10 @@ class Character(object):
     def spawn(self):
         child = Character(self.space)
         child.birth_year = self.birth_year + self.age
+        child.last_name = self.last_name
         child.relations[self] = 1
         self.relations[child] = 1
-        self.action_log.append(self.create_entry("spawned child"))
+        self.action_log.append(self.create_entry("spawned " + str(child)))
         Character.born.add(child)
 
     def die(self):
@@ -63,6 +66,6 @@ class Character(object):
         else:
             other.relations[self] = effect 
         if effect < 0:
-            self.action_log.append(self.create_entry("harmed " + other.first_name))
+            self.action_log.append(self.create_entry("harmed " + str(other)))
         elif effect > 0:
-            self.action_log.append(self.create_entry("befriended " + other.first_name))
+            self.action_log.append(self.create_entry("helped " + str(other)))
