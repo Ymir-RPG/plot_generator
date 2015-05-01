@@ -31,19 +31,15 @@ class Character(object):
         return choice(male_first_list)
 
     def make_decision(self):
-        roll = randint(0, 3)
+        roll = randint(0, 2)
         if roll == 0:
             self.spawn()
         elif roll == 1:
             self.die()
         elif roll == 2:
-            friend = choice(list(self.space)) #O(n), find way to fix
-            if friend != self: #can't befriend yourself
-                self.befriend(friend)
-        else:
-            enemy = choice(list(self.space)) #O(n), find way to fix
-            if enemy != self: #can't harm yourself
-                self.harm(enemy)
+            relation = choice(list(self.space)) #O(n), find way to fix
+            if relation != self:
+                self.effect_other(relation, choice([-1, 1]))
 
     def spawn(self):
         child = Character(self.space)
@@ -57,24 +53,16 @@ class Character(object):
         self.action_log.append(self.create_entry("died"))
         Character.dead.add(self)
 
-    def befriend(self, other):
+    def effect_other(self, other, effect):
         if other in self.relations:
-            self.relations[other] += 1
+            self.relations[other] += effect
         else:
-            self.relations[other] = 1
+            self.relations[other] = effect 
         if self in other.relations:
-            other.relations[self] += 1
+            other.relations[self] += effect 
         else:
-            other.relations[self] = 1
-        self.action_log.append(self.create_entry("befriended " + other.first_name))
-
-    def harm(self, other):
-        if other in self.relations:
-            self.relations[other] -= 1
-        else:
-            self.relations[other] = -1
-        if self in other.relations:
-            other.relations[self] -= 1
-        else:
-            other.relations[self] = -1 
-        self.action_log.append(self.create_entry("harmed " + other.first_name))
+            other.relations[self] = effect 
+        if effect < 0:
+            self.action_log.append(self.create_entry("harmed " + other.first_name))
+        elif effect > 0:
+            self.action_log.append(self.create_entry("befriended " + other.first_name))
